@@ -23,3 +23,21 @@ foreach ($string in $input_file_contents) {
 
 $line_total
 Write-Host "total value:" ($line_total | measure-object -sum).sum
+
+
+switch -Wildcard ($input_file_contents) {
+    "*one*" {$_ + "found the number 1"}
+    "*two*" {$_ + "found the number 2"}
+    "*three*" {$_ + "found the number 3"}
+    "*four*" {$_ + "found the number 4"}
+    "*five*" {$_ + "found the number 5"}
+    "*six*" {$_ + "found the number 6"}
+    "*seven*" {$_ + "found the number 7"}
+    "*eight*" {$_ + "found the number 8"}
+    "*nine*" {$_ + "found the number 9"}
+    #Default {}
+}
+
+switch -wildcard ($input_file_contents) {
+    "*1*" {$_}
+}
