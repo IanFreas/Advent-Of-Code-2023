@@ -1,70 +1,61 @@
-#todo: figure out how to not add 0's
 [System.Collections.ArrayList]$output_array = @()
-$string = "two1nine"
-$string_array = $string.ToCharArray()
+#$string = "two1nine"
+#$string_array = $string.ToCharArray()
+$strings = Get-Content -Path ".\advent1_input.txt"
+$number_mapping = @{
 
-#iterate for how long the given string is
-#grow a new string by 1 char at at time
-for ($i = 0; $i -lt $string_array.Count; $i++) 
+    "one"   = 1
+    "two"   = 2
+    "three" = 3
+    "four"  = 4
+    "five"  = 5
+    "six"   = 6
+    "seven" = 7
+    "eight" = 8
+    "nine"  = 9
+}
+function Left_To_Right 
 {
-    #Take the index of the array and increment it on each pass. then grow the new string
-    $joined_string += $string_array[$i]
-    
-    #Regex to find number in string as it grows
-    if ([regex]::Matches($joined_string, '\d+').Value) 
+    #iterate for how long the given string is
+    #grow a new string by 1 char at at time
+    #perform 2 checks. Either if the growing string is an int or contains a word that spells a number
+    $test_array = $output_array
+
+    for ($i = 0; $i -lt $string_array.Count; $i++) 
     {
-        $output_array += [regex]::Matches($joined_string, '\d+').Value
-        $joined_string = '' #clear out the grown string
-    }
+        #Take the index of the array and increment it on each pass. then grow the new string
+        $joined_string += $string_array[$i]
     
-    #Check if there's the word in the growing string
-    switch -Exact ($joined_string) 
-    {
-        "one" 
+        #check 1: find if the joined string contains an integer
+        #Regex to find number in string as it grows
+        if ([regex]::Matches($joined_string, '\d+').Value) 
         {
-            $output_array.Add(1) | Out-Null
+            $output_array += [regex]::Matches($joined_string, '\d+').Value
             $joined_string = '' #clear out the grown string
+            #break?
         }
-        "two" 
-        {
-            $output_array.Add(2) | Out-Null
-            $joined_string = '' #clear out the grown string
+        
+        #check 2: check if the growing string turns into a word that spells a number
+        elseif ($number_mapping.ContainsKey($joined_string)) {
+            $output_array.Add($number_mapping[$joined_string]) | Out-Null
+            $joined_string = '' # clear out the grown string
+            #exit
         }
-        "three" 
-        {
-            $output_array.Add(3) | Out-Null
-            $joined_string = '' #clear out the grown string
-        }
-        "four" 
-        {
-            $output_array.Add(4) | Out-Null
-            $joined_string = '' #clear out the grown string
-        }
-        "five" 
-        {
-            $output_array.Add(5) | Out-Null
-            $joined_string = '' #clear out the grown string
-        }
-        "six" 
-        {
-            $output_array.Add(6) | Out-Null
-            $joined_string = '' #clear out the grown string
-        }
-        "seven" 
-        {
-            $output_array.Add(7) | Out-Null
-            $joined_string = '' #clear out the grown string
-        }
-        "eight" 
-        {
-            $output_array.Add(8) | Out-Null
-            $joined_string = '' #clear out the grown string
-        }
-        "nine" 
-        {
-            $output_array.Add(9) | Out-Null
-            $joined_string = '' #clear out the grown string
+
+        elseif ($test_array.Count -lt $output_array.Count) {
+            break
         }
     }
 }
+
+#outer loop going through the whole file
+foreach ($string in $strings)
+{
+    #Left to right check
+    Left_To_Right
+
+    #Right to left check
+
+}
+
 $output_array
