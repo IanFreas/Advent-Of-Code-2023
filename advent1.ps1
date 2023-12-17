@@ -1,93 +1,70 @@
-<#
-$input_file_path = "$env:USERPROFILE\onedrive\documents\programming\advent-of-code-2023\advent1_input.txt"
-$input_file_contents = get-content $input_file_path
-$line_total = @()
-
-foreach ($string in $input_file_contents) {
-    # pattern match to find pull out all numbers from the string
-    $pre_numbers = [regex]::Matches($string, '\d+').Value -join ''
-    
-    # pattern match first for the string then convert THEN do the rest
-    
-    switch -Wildcard ($input_file_contents) {
-        "*one*" {$_ + "found the number 1"}
-        "*two*" {$_ + "found the number 2"}
-        "*three*" {$_ + "found the number 3"}
-        "*four*" {$_ + "found the number 4"}
-        "*five*" {$_ + "found the number 5"}
-        "*six*" {$_ + "found the number 6"}
-        "*seven*" {$_ + "found the number 7"}
-        "*eight*" {$_ + "found the number 8"}
-        "*nine*" {$_ + "found the number 9"}
-        #Default {}
-    }
-        
-    # if there are more than 2 numbers in the string
-    if ($pre_numbers.Length -gt 2) {
-        $new_numbers = $pre_numbers[0] -join ''
-        $new_numbers += $pre_numbers[-1] -join ''
-        $line_total += [int]$new_numbers
-    }
-    # check if theres just 1 number
-    elseif ($pre_numbers.Length -eq 1) {
-        $new_numbers = $pre_numbers[0] -join ''
-        $new_numbers += $pre_numbers[0] -join ''
-        $line_total += [int]$new_numbers
-    }
-    else {
-        $line_total += [int]$pre_numbers
-    }
-}
-
-$line_total
-Write-Host "total value:" ($line_total | measure-object -sum).sum
-
-
-
-
-switch -wildcard ($input_file_contents) {
-    "*1*" {$_}
-}
-#>
-
 #todo: figure out how to not add 0's
+[System.Collections.ArrayList]$output_array = @()
 $string = "two1nine"
-$string_array = $string -split ''
+$string_array = $string.ToCharArray()
 
 #iterate for how long the given string is
-for ($i = 0; $i -lt $string_array.Count; $i++) {
-    $joined_string += $string_array[$i] -join ''
-    #$joined_string
-    [System.Collections.ArrayList]$output_array = @()
+#grow a new string by 1 char at at time
+for ($i = 0; $i -lt $string_array.Count; $i++) 
+{
+    #Take the index of the array and increment it on each pass. then grow the new string
+    $joined_string += $string_array[$i]
     
-    # regex to find number
-    #$output_array += [regex]::Matches($joined_string, '\d+').Value
-    switch -regex ($joined_string) {
-        '\d+' {if ($_ -ne '0'){
-            $output_array.Add([int]$_)
-            }
-        $joined_string = ""
-        }
-        #Default {}
+    #Regex to find number in string as it grows
+    if ([regex]::Matches($joined_string, '\d+').Value) 
+    {
+        $output_array += [regex]::Matches($joined_string, '\d+').Value
+        $joined_string = '' #clear out the grown string
     }
     
-
-    switch -Wildcard ($joined_string) {
-        "*one*" {$_ + "found the number 1"}
-        "*two*" {$output_array.Add(2)
-            $joined_string = ""
+    #Check if there's the word in the growing string
+    switch -Exact ($joined_string) 
+    {
+        "one" 
+        {
+            $output_array.Add(1) | Out-Null
+            $joined_string = '' #clear out the grown string
         }
-        "*three*" {$_ + "found the number 3"}
-        "*four*" {$_ + "found the number 4"}
-        "*five*" {$_ + "found the number 5"}
-        "*six*" {$_ + "found the number 6"}
-        "*seven*" {$_ + "found the number 7"}
-        "*eight*" {$_ + "found the number 8"}
-        "*nine*" {$output_array.Add(9)
-            $joined_string = ""
+        "two" 
+        {
+            $output_array.Add(2) | Out-Null
+            $joined_string = '' #clear out the grown string
         }
-        #Default {}
+        "three" 
+        {
+            $output_array.Add(3) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
+        "four" 
+        {
+            $output_array.Add(4) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
+        "five" 
+        {
+            $output_array.Add(5) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
+        "six" 
+        {
+            $output_array.Add(6) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
+        "seven" 
+        {
+            $output_array.Add(7) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
+        "eight" 
+        {
+            $output_array.Add(8) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
+        "nine" 
+        {
+            $output_array.Add(9) | Out-Null
+            $joined_string = '' #clear out the grown string
+        }
     }
-    $output_array
 }
-gv joined_string | rv
+$output_array
