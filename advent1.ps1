@@ -1,8 +1,10 @@
 [System.Collections.ArrayList]$outputArray = @()
+Set-Variable -Name outputArray -Scope script
 #$string = "two1nine"
 #$stringBrokenIntoArray = $string.ToCharArray()
-$strings = Get-Content -Path ".\advent1_input.txt"
-$numberMatches = @{
+$script:strings = Get-Content -Path ".\advent1_input.txt"
+$script:numberMatches = 
+@{
 
     "one"   = 1
     "two"   = 2
@@ -14,7 +16,8 @@ $numberMatches = @{
     "eight" = 8
     "nine"  = 9
 }
-$expectedOutput = @(
+$script:expectedOutput = 
+@(
     2,
     8,
     1,
@@ -25,19 +28,19 @@ $expectedOutput = @(
 )
 
 #outer loop going through the whole file
-foreach ($string in $strings)
+:outerLoop foreach ($script:string in $strings)
 {
     #Left to right check
     #iterate for how long the given string is
     #grow a new string by 1 char at at time
     #perform 2 checks. Either if the growing string is an int or contains a word that spells a number
-    $originalArrayLength = $outputArray
-    $stringBrokenIntoArray = $string.ToCharArray()
+    $script:originalArrayLength = $outputArray
+    $script:stringBrokenIntoArray = $string.ToCharArray()
     
     for ($i = 0; $i -lt $stringBrokenIntoArray.Count; $i++) 
     {
         #Take the index of the array and increment it on each pass. then grow the new string
-        $rebuiltString += $stringBrokenIntoArray[$i]
+        $script:rebuiltString += $stringBrokenIntoArray[$i]
     
 
         
@@ -46,8 +49,8 @@ foreach ($string in $strings)
         if ([regex]::Matches($rebuiltString, '\d+').Value) 
         {
             $outputArray += [regex]::Matches($rebuiltString, '\d+').Value
-            $rebuiltString = '' #clear out the grown string
-            break
+            clear-variable -name rebuiltString #clear out the grown string
+            $i++
         }
         
 
@@ -58,14 +61,14 @@ foreach ($string in $strings)
                 if ($rebuiltString -like $pattern) {
                     $outputArray.Add($numberMatches[$pattern]) | Out-Null
                     $rebuiltString = '' # clear out the grown string
-                    break
+                    $i++
                 }
             }
         }
     
         elseif ($originalArrayLength.Count -lt $outputArray.Count) 
         {
-            break
+            $i++
         }
     }
 
