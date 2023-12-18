@@ -16,16 +16,6 @@ $script:numberMatches =
     "eight" = 8
     "nine"  = 9
 }
-$script:expectedOutput = 
-@(
-    2,
-    8,
-    1,
-    2,
-    4,
-    1,
-    7
-)
 
 #outer loop going through the whole file
 :outerLoop foreach ($script:string in $strings)
@@ -46,7 +36,7 @@ $script:expectedOutput =
         #Regex to find number in string as it grows
         if ([regex]::Matches($rebuiltString, '\d+').Value) 
         {
-            $outputArray += [regex]::Matches($rebuiltString, '\d+').Value
+            $outputArray += [int]([regex]::Matches($rebuiltString, '\d+').Value)
             clear-variable -name rebuiltString #clear out the grown string
             break innerLoop
         }
@@ -60,41 +50,49 @@ $script:expectedOutput =
             {
                 $outputArray.Add(1) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*two" 
             {
                 $outputArray.Add(2) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*three" 
             {
                 $outputArray.Add(3) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*four" 
             {
                 $outputArray.Add(4) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*five" 
             {
                 $outputArray.Add(5) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*six" 
             {
                 $outputArray.Add(6) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*seven" 
             {
                 $outputArray.Add(7) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
             "*eight" 
             {
                 $outputArray.Add(8) | Out-Null
                 clear-variable -name rebuiltString #clear out the grown string
+                break innerLoop
             }
         }
         
@@ -109,16 +107,5 @@ $script:expectedOutput =
 }
 
 $outputArray
-
-
-if ($testArray -eq $expectedOutput) 
-{
-    write-host "they match"
-}
-
-elseif ($testArray -ne $expectedOutput)
-{
-    write-host "dont match"
-}
 
 gv rebuiltString, stringBrokenIntoArray, string | rv
