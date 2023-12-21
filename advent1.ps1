@@ -1,23 +1,7 @@
 [System.Collections.ArrayList]$outputArray = @()
-#$string = "two1nine"
-#$stringBrokenIntoArray = $string.ToCharArray()
 $strings = Get-Content -Path ".\advent1_input.txt"
 [System.Collections.ArrayList]$combinedParsedOutput = @()
-<#
-$numberMatches = 
-@{
 
-    "one"   = 1
-    "two"   = 2
-    "three" = 3
-    "four"  = 4
-    "five"  = 5
-    "six"   = 6
-    "seven" = 7
-    "eight" = 8
-    "nine"  = 9
-}
-#>
 
 #outer loop going through the whole file
 :mainLoop foreach ($string in $strings)
@@ -27,6 +11,7 @@ $numberMatches =
     #perform 2 checks. Either if the growing string is an int or contains a word that spells a number
     $stringBrokenIntoArray = $string.ToCharArray()
     [System.Collections.ArrayList]$combinedParsedOutput = @()
+
     #Left to right parse. Output to combinedParsedOutput
     :parseLeftToRight for ($i = 0; $i -lt $stringBrokenIntoArray.Count; $i++) 
     {
@@ -40,10 +25,8 @@ $numberMatches =
             $combinedParsedOutput += ([regex]::Matches($rebuiltString, '\d+').Value)
             clear-variable -name rebuiltString #clear out the grown string
             break parseLeftToRight
-        }
-        
+        }  
 
-        #gotta check for wildcards here
         #check 2: check if the growing string turns into a word that spells a number
         switch -Wildcard ($rebuiltString) 
         {
@@ -120,7 +103,6 @@ $numberMatches =
             break parseRightToLeft
         }
         
-
         #check 2: check if the growing string turns into a word that spells a number
         #this time the word is reversed as it's built in reverse
         switch -Wildcard ($rebuiltString) 
@@ -181,12 +163,11 @@ $numberMatches =
             }
         }
     }
+    
     #take the combined values of each line and add it to the final array
     $outputArray += [int]($combinedParsedOutput -join "")
 }
 
 #all values from each line and the total sum
 $outputArray
-write-host "total value:" ($outputArray | Measure-Object -sum).Sum
-
-gv rebuiltString, stringBrokenIntoArray, string, combinedParsedOutput, outputArray | rv
+write-host "total sum:" ($outputArray | Measure-Object -sum).Sum
