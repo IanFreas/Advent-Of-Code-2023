@@ -7,3 +7,6 @@ $cubeLimits = @(
     "13 green",
     "14 blue"
 )
+
+foreach ($item in $fileContents) {
+
