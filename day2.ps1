@@ -22,15 +22,24 @@ $cubeLimits = @(
     "14 blue"
 )
 
+# Main for loop
 for ($i = 0; $i -lt $fileContents.Count; $i++){
     # split the game with number string out first     
     $splitLines = $fileContents[$i] -split ':'
     $gameNumber = $splitLines[0]
+
+    # split the cubes from the line itself
     $gameContents = $splitLines[1]
-    #$gameContents -split ';' 
-    #$gameNumber
-    #$gameContents
-    $myhash.add($gameNumber,$gameContents)
+    $numbers = [regex]::Matches($gameContents, '\b\d+\b') | ForEach-Object {$_.Value}
+    $gameNumber 
+    $numbers
+    $myhash.add($gameNumber,$numbers)
 }
+
+#make a red limit loop - break if hit
+#make a blue limit loop - break if hit
+#make a blue limit loop - break if hit
+
+
 
 $myHash
