@@ -30,7 +30,8 @@ for ($i = 0; $i -lt $fileContents.Count; $i++){
 
     # split the cubes from the line itself
     $gameContents = $splitLines[1]
-    $numbers = [regex]::Matches($gameContents, '\b\d+\b') | ForEach-Object {$_.Value}
+    $numbers = [regex]::Matches($gameContents, '\b\d+\b')
+    | ForEach-Object {$_.Value}
     $gameNumber 
     $numbers
     $myhash.add($gameNumber,$numbers)
