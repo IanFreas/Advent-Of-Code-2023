@@ -9,38 +9,39 @@
 
 $intputFile = (get-location).path + "\day2_input.txt"
 $fileContents = Get-Content $intputFile
-#$fileContents[0]
 $myHash = @{}
 
 $redLimit = 12
 $blueLimit = 13
 $greenLimit = 14
 
-$cubeLimits = @(
-    "12 red",
-    "13 green",
-    "14 blue"
-)
+$limits = 12,13,14
 
 # Main for loop
 for ($i = 0; $i -lt $fileContents.Count; $i++){
+ 
     # split the game with number string out first     
-    $splitLines = $fileContents[$i] -split ':'
-    $gameNumber = $splitLines[0]
+    $gameInputSplit = $fileContents[$i] -split ':'
+    $gameNumber = $gameInputSplit[0]
 
     # split the cubes from the line itself
-    $gameContents = $splitLines[1]
-    $numbers = [regex]::Matches($gameContents, '\b\d+\b')
-    | ForEach-Object {$_.Value}
-    $gameNumber 
-    $numbers
-    $myhash.add($gameNumber,$numbers)
+    $gameOutputs = $gameInputSplit[1]
+    
+    # Some regex to grab the number of the cube rolls
+    $cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
+   
+    if ($cubeRolls -le $limits){
+
+	#fix by checking one limit at at time	
+    }
+ 
+    #$myhash.add($gameNumber,$cubeRolls)
+
 }
 
 #make a red limit loop - break if hit
 #make a blue limit loop - break if hit
 #make a blue limit loop - break if hit
-
 
 
 $myHash
