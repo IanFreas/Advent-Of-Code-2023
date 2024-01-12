@@ -1,5 +1,4 @@
 # TODO
-# figure out regex matching 
 # ok use something like [0-9]+ red with -match to pattern match a variable i create
 # then do a value compare against the limit
 # once done check if the game is possible then add that game number to a new array
@@ -28,9 +27,11 @@ for ($i = 0; $i -lt $fileContents.Count; $i++){
     $cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
 
     foreach ($limit in $limits){
-	if ($cubeRolls -ge $limit){
-    	    Write-Host "$cubeRolls is greater than $limit"
-        }
+	foreach ($roll in $cubeRolls){
+            if ($roll -ge $limit){
+                write-host "$roll and $limit"
+            }
+	}
     }
     #$myhash.add($gameNumber,$cubeRolls)
 }
