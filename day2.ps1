@@ -15,7 +15,8 @@ $greenLimit = 14
 $limits = 12,13,14
 
 # Main for loop
-for ($i = 0; $i -lt $fileContents.Count; $i++){
+for ($i = 0; $i -lt $fileContents.Count; $i++)
+{
     # split the game with number string out first     
     $gameInputSplit = $fileContents[$i] -split ':'
     $gameNumber = $gameInputSplit[0]
@@ -26,15 +27,15 @@ for ($i = 0; $i -lt $fileContents.Count; $i++){
     # Some regex to grab the number of the cube rolls
     $cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
 
-    foreach ($limit in $limits){
-	foreach ($roll in $cubeRolls){
-            if ($roll -ge $limit){
-                write-host "$roll and $limit"
-            }
-	}
+    #cast everything to an int
+    #($array.split(",") | % {iex $_}) -ge 12
+    foreach ($limit in $limits)
+    {
+        #$cubeRolls -ge $limit
     }
     #$myhash.add($gameNumber,$cubeRolls)
 }
+
 
 #make a red limit loop - break if hit
 #make a blue limit loop - break if hit
