@@ -4,6 +4,8 @@
 # once done check if the game is possible then add that game number to a new array
 # get the sum of that array for the answer
 
+
+Set-Location "~\OneDrive\Documents\GitHub\Advent-Of-Code-2023"
 $intputFile = (get-location).path + "\day2_input.txt"
 $fileContents = Get-Content $intputFile
 $myHash = @{}
@@ -27,6 +29,8 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
     # Some regex to grab the number of the cube rolls
     $cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
 
+    
+    $cubeRolls | ForEach-Object {$a = [int]$_; $a.GetType()}
     #cast everything to an int
     #($array.split(",") | % {iex $_}) -ge 12
     foreach ($limit in $limits)
