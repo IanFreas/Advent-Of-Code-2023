@@ -22,21 +22,32 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
     # split the game with number string out first     
     $gameInputSplit = $fileContents[$i] -split ':'
     $gameNumber = $gameInputSplit[0]
+    $gameNumber
+
+    $gameInputSplit | % {
+        $a = [regex]::Matches($_, '\d\s[A-Za-z]+')
+        $a.Value
+        switch ($x) {
+            condition {  }
+            Default {}
+        }
+        $a.value 
+    }
 
     # split the cubes from the line itself
-    $gameOutputs = $gameInputSplit[1]
+    #$gameOutputs = $gameInputSplit[1]
     
     # Some regex to grab the number of the cube rolls
-    $cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
+    #$cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
 
     
-    $cubeRolls | ForEach-Object {$a = [int]$_; $a.GetType()}
+    #$cubeRolls | ForEach-Object {$a = [int]$_; $a.GetType()}
     #cast everything to an int
     #($array.split(",") | % {iex $_}) -ge 12
-    foreach ($limit in $limits)
-    {
+    #foreach ($limit in $limits)
+    #{
         #$cubeRolls -ge $limit
-    }
+    #}
     #$myhash.add($gameNumber,$cubeRolls)
 }
 
@@ -46,4 +57,3 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
 #make a blue limit loop - break if hit
 
 
-$myHash
