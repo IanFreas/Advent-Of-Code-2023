@@ -8,7 +8,8 @@
 Set-Location "~\OneDrive\Documents\GitHub\Advent-Of-Code-2023"
 $intputFile = (get-location).path + "\day2_input.txt"
 $fileContents = Get-Content $intputFile
-$myHash = @{}
+
+$total = 0
 
 $redLimit = 12
 $blueLimit = 13
@@ -24,16 +25,61 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
     $gameNumber = $gameInputSplit[0]
     $gameNumber
 
-    $gameInputSplit | % {
-        $a = [regex]::Matches($_, '\d\s[A-Za-z]+')
-        $a.Value
-        switch ($x) {
-            condition {  }
-            Default {}
+    :outerLoop $gameInputSplit | ForEach-Object {
+        $individualRollValue = [regex]::Matches($_, '\d+\s[A-Za-z]+')
+        #$individualRollValue.Value
+        if ($individualRollValue.Value -match 'red') 
+        {
+            switch -Wildcard ($individualRollValue.value) 
+            {
+                "*red*" 
+                {
+                    $red = [int]([regex]::Matches($_, '\d+').value)
+                    $number = [int]([regex]::Matches($gameNumber, '\d+').value)
+                    if ($red -lt $redLimit)
+                    {
+                        $total += $number
+                        break :outerLoop
+                    }
+                }
+            }
         }
-        $a.value 
+        if ($individualRollValue.Value -match 'blue') 
+        {
+            switch -Wildcard ($individualRollValue.value) 
+            {
+                "*blue*" 
+                {
+                    $blue = [int]([regex]::Matches($_, '\d+').value)
+                    $number = [int]([regex]::Matches($gameNumber, '\d+').value)
+                    if ($blue -lt $blueLimit)
+                    {
+                        $total += $number
+                    }
+                }
+            }
+        }
+        if ($individualRollValue.Value -match 'green') 
+        {
+            switch -Wildcard ($individualRollValue.value) 
+            {
+                "*green*" 
+                {
+                    $green = [int]([regex]::Matches($_, '\d+').value)
+                    $number = [int]([regex]::Matches($gameNumber, '\d+').value)
+                    if ($green -lt $greenLimit)
+                    {
+                        $total += $number
+                    }
+                }
+            }
+        }
+        
+        <#
+        }
+        #>
     }
-
+    $total
     # split the cubes from the line itself
     #$gameOutputs = $gameInputSplit[1]
     
