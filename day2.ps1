@@ -12,22 +12,25 @@ $fileContents = Get-Content $intputFile
 $total = 0
 
 $redLimit = 12
-$blueLimit = 13
-$greenLimit = 14
-
-$limits = 12,13,14
+$greenLimit = 13
+$blueLimit = 14
 
 # Main for loop
-for ($i = 0; $i -lt $fileContents.Count; $i++)
+for ($i = 0; $i -lt $fileContents.Length; $i++)
 {
     # split the game with number string out first     
     $gameInputSplit = $fileContents[$i] -split ':'
     $gameNumber = $gameInputSplit[0]
-    $gameNumber
+    $gameContents = $gameInputSplit[1].TrimStart()
+    $gameContentsBrokenUp = [regex]::Matches($gameContents, '\d+\s[A-Za-z]+')
+    $gameContentsSorted = $gameContentsBrokenUp.value | Sort-Object -Descending
 
-    :outerLoop $gameInputSplit | ForEach-Object {
-        $individualRollValue = [regex]::Matches($_, '\d+\s[A-Za-z]+')
-        #$individualRollValue.Value
+    $gameNumber
+    $continue = $true
+
+    :loop while ($continue) 
+    {
+        $individualRollValue = [regex]::Matches($gameContentsSorted, '\d+\s[A-Za-z]+')
         if ($individualRollValue.Value -match 'red') 
         {
             switch -Wildcard ($individualRollValue.value) 
@@ -39,7 +42,10 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
                     if ($red -lt $redLimit)
                     {
                         $total += $number
-                        break :outerLoop
+                        break loop
+                    }
+                    else {
+                        break loop
                     }
                 }
             }
@@ -55,6 +61,10 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
                     if ($blue -lt $blueLimit)
                     {
                         $total += $number
+                        break Loop
+                    }
+                    else {
+                        break loop
                     }
                 }
             }
@@ -70,26 +80,27 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
                     if ($green -lt $greenLimit)
                     {
                         $total += $number
+                        break Loop
+                    }
+                    else {
+                        break loop
                     }
                 }
             }
         }
-        
-        <#
-        }
-        #>
     }
+
     $total
     # split the cubes from the line itself
-    #$gameOutputs = $gameInputSplit[1]
+    #$gameOutputs = $gameContents
     
     # Some regex to grab the number of the cube rolls
-    #$cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$_.Value}
+    #$cubeRolls = [regex]::Matches($gameOutputs, '\b\d+\b') | ForEach-Object {$gameContents.Value}
 
     
-    #$cubeRolls | ForEach-Object {$a = [int]$_; $a.GetType()}
+    #$cubeRolls | ForEach-Object {$a = [int]$gameContents; $a.GetType()}
     #cast everything to an int
-    #($array.split(",") | % {iex $_}) -ge 12
+    #($array.split(",") | % {iex $gameContents}) -ge 12
     #foreach ($limit in $limits)
     #{
         #$cubeRolls -ge $limit
