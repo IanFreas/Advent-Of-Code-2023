@@ -27,27 +27,37 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
     $array = [regex]::matches($gameContents, '\d+').value
     $sortedArray = $array | ForEach-Object {[int]$_} | Sort-Object -Descending
      
-    :innerLoop for ($j = 0; $j -lt $sortedArray.Count; $j++)
-    {
-        <# Action that will repeat until the condition is met #>
-        if (($sortedArray[$j]) -le $redLimit) 
+
+    if ($sortedArray[0] -le 12) {
+        $total += $number
+        write-host "$gameNumber is possible"
+    }
+    else {
+        :innerLoop for ($j = 0; $j -lt $sortedArray.Count; $j++)
         {
-            $total += $number
-            break innerLoop
+            <# Action that will repeat until the condition is met #>
+            if (($sortedArray[$j]) -le $redLimit) 
+            {
+                $total += $number
+                write-host "$gameNumber is possible"
+                break innerLoop
+            }
+            elseif (($sortedArray[$j]) -le $blueLimit) 
+            {
+                $total += $number
+                write-host "$gameNumber is possible"
+                break innerLoop
+            }
+            elseif (($sortedArray[$j]) -le $greenLimit) 
+            {
+                $total += $number
+                write-host "$gameNumber is possible"
+                break innerLoop
+            }
+            else {
+                break innerLoop
+            }  
         }
-        elseif (($sortedArray[$j]) -le $blueLimit) 
-        {
-            $total += $number
-            break innerLoop
-        }
-        elseif (($sortedArray[$j]) -le $greenLimit) 
-        {
-            $total += $number
-            break innerLoop
-        }
-        else {
-            break innerLoop
-        }  
     }
     $total
 }
