@@ -14,7 +14,7 @@ $redLimit = 12
 $greenLimit = 13
 $blueLimit = 14
 
-# Main for loop
+# Main for loop iterating through the input file
 for ($i = 0; $i -lt $fileContents.Count; $i++)
 {
     # split the game with number string out first     
@@ -22,77 +22,72 @@ for ($i = 0; $i -lt $fileContents.Count; $i++)
     $gameNumber = $gameInputSplit[0]
     $gameContents = $gameInputSplit[1].TrimStart()
 
-    $gameNumber
+    #$gameNumber
     $number = [int]([regex]::Matches($gameNumber, '\d+').value)
     $array = [regex]::matches($gameContents, '\d+').value
+
+    #breakout each color into an array of each
+    $reds = [regex]::matches($gameContents, '\d+\sred+').value
+    $redNumbers = @()
+    $reds | % {$redNumbers += ([int]([regex]::Matches($_, '\d+').value))}
+
+    $greens = [regex]::matches($gameContents, '\d+\sgreen+').value
+    $greenNumbers = @()
+    $greens | % {$greenNumbers += ([int]([regex]::Matches($_, '\d+').value))}
+    
+    $blues = [regex]::matches($gameContents, '\d+\sblue+').value
+    $blueNumbers = @()
+    $blues | % {$blueNumbers += ([int]([regex]::Matches($_, '\d+').value))}
+
     $sortedArray = $array | ForEach-Object {[int]$_} | Sort-Object -Descending
      
+    $gameContentsAgain = (($gameContents -split ',').Trim() -split ';').trim()
 
     if ($sortedArray[0] -le 12)
     {
         $total += $number
+        "$gameNumber is possible"
     }
 
-    $gameContentsAgain = (($gameContents -split ',').Trim() -split ';').trim()
-    
-    switch -Wildcard ($gameContentsAgain) {
-        "*red" {
-            $red = [int]([regex]::matches($_, '\d+').value)
-            if ($red -ge $redLimit)
-            {
-                break
-            }
-          }
-        "*green" {
-            $green = [int]([regex]::matches($_, '\d+').value)
-            if ($green -ge $greenLimit)
-            {
-                break
-            } 
-         }
-        "*blue" { 
-            $blue = [int]([regex]::matches($_, '\d+').value)
-            if ($blue -ge $blueLimit)
-            {
-                break
-            }
-         }
-        Default {$total += $number}
-    }
-
-switch ($x) {
-    condition {  }
-    Default {}
-}
-
-<#
     $gameContentsAgain | ForEach-Object {
         if ($_ -match 'red')
         {
             $red = [int]([regex]::matches($_, '\d+').value)
-            if ($red -ge $redLimit)
+            if ($red -gt $redLimit)
             {
-                break
+                continue
             }
         }
         elseif ($_ -match 'green')
         {
             $green = [int]([regex]::matches($_, '\d+').value)
-            if ($green -ge $greenLimit)
+            if ($green -gt $greenLimit)
             {
-                break
+                continue
             }            
         }
         elseif ($_ -match 'blue')
         {
             $blue = [int]([regex]::matches($_, '\d+').value)
-            if ($blue -ge $blueLimit)
+            if ($blue -gt $blueLimit)
             {
-                break
+                continue
             }
+#            elseif ($blue -) {
+ #               $total += $number
+  #              "$gameNumber is possible"
+   #         }
+        }
+        else {
+            $total += $number
+            "$gameNumber is possible"
         }
         
     }
+
+
+<#
+
 
     else {
         :innerLoop for ($j = 0; $j -lt $sortedArray.Count; $j++)
@@ -122,4 +117,5 @@ switch ($x) {
     }
     #>
     $total
+    
 }
