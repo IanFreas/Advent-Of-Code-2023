@@ -10,12 +10,11 @@ $total = 0
 
 $fileContents | ForEach-Object {
     $CurrentGameNumber = [int]([regex]::Matches(($_ -split ':')[0], '\d+').value)
-    #"game $currentgamenumber"
+    $GamePossible = $true
 
-    $CubeRollsPreTrimmed = ($_ -split ':')[1] -split ";"
-    $CubeRolls = $CubeRollsPreTrimmed.Trim()
+    $CubeRolls = ($_ -split ':')[1] -split ";"
     :innerLoop ForEach($Roll in $CubeRolls) {
-    
+
         #Red Check
         $RedValue = [int]([regex]::matches(([regex]::matches($Roll, '\d+\sred+').value), '\d+').value)
 
@@ -27,32 +26,25 @@ $fileContents | ForEach-Object {
 
         if ($RedValue -gt $redLimit) {
             Write-Host "Game $CurrentGameNumber can't work cause of Red $RedValue"
+            $GamePossible = $false
             break innerLoop
         }
         elseif ($GreenValue -gt $greenLimit) {
             Write-Host "Game $CurrentGameNumber can't work cause of Green $GreenValue"
+            $GamePossible = $false
             break innerLoop
         }
         elseif ($BlueValue -gt $BlueLimit) {
             Write-Host "Game $CurrentGameNumber can't work cause of Blue $BlueValue"
+            $GamePossible = $false
             break innerLoop
         }
-        else {
-            Write-Host "Game $CurrentGameNumber can work"
-            $total += $CurrentGameNumber
-            break innerLoop
-        }
-
+    }
+    if ($GamePossible) {
+        Write-Host "Game $CurrentGameNumber can work"
+        $total += $CurrentGameNumber
     }
 
 }
 
 $total
-<#
-#reds 
-$reds = [regex]::matches(($_ -split ':')[1], '\d+\sred+').value
-$reds | ForEach-Object {
-    $redNumberStrings = [regex]::Matches($_, '\d+').value
-    $redNumberStrings
-}
-#>
