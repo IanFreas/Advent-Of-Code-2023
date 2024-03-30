@@ -15,9 +15,11 @@ even diagonally, is a "part number" and should be included in your sum.
 .664.598..
 #>
 
-$fileInput = get-content 'C:\Users\Ianfr\OneDrive\Documents\GitHub\Advent-Of-Code-2023\day3_input.txt'
+$filepath = 'C:\Users\Ianfr\OneDrive\Documents\GitHub\Advent-Of-Code-2023\day3_input.txt'
+$fileInput = get-content $filepath
 
-$specialChars = ('\*','\#','\+','\$')
+$specialCharsTestInput = '\$|\*|\#|\+'
+$specialChars = ('\-','\@','\*','\/','\&','\#','\%','\+','\=','\$')
 
 
-
+$fileInput | select-string -Pattern $specialCharsTestInput -AllMatches
