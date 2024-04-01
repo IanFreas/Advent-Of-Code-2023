@@ -22,71 +22,103 @@ $specialCharsTestInput = '\$|\*|\#|\+'
 $specialChars = '\-|\@|\*|\/|\&|\#|\%|\+|\=|\$'
 $numRegex = '\d+'
 
-$numberMatches = @()
-$specialMatches = @()
+#$numberMatches = @()
+#$specialMatches = @()
+$numbersTable = @{}
+$specialTable = @{}
 
-foreach ($line in $fileInput)
-{
-    $numberMatches += $line | Select-String -Pattern $numRegex -AllMatches
-    $specialMatches += $line | Select-String -Pattern $specialCharsTestInput -AllMatches
-}
+$lineNumber = 0
 
-
-# check in 12 spots around the numbers to see if a special character is there. If yes then add it to the total. otherwise ignore
-
-
-
-
-<#
-$foundMatches = @{}
-
-function processLine ($line, $foundMatches, $lineNumber) {
-    $foundCharacters = $line | select-string -Pattern $specialCharsTestInput -AllMatches
-    if ($true -eq $foundCharacters) {
-
-        $matchIndex = $foundCharacters.Matches.Index
-        
-        #get all adjacent lines
-        $previousLine = $fileinput[($lineNumber - 1) ]
-        $currentLine = $fileinput[$lineNumber]
-        $nextLine = $fileinput[($lineNumber + 1)]
-
-        #pull out matches
-        $previousLineMatches = $previousLine | Select-String -Pattern '\d+' -AllMatches
-        $currentLineMatches = $currentLine | Select-String -Pattern '\d+' -AllMatches
-        $nextLineMatches = $nextLine | Select-String -Pattern '\d+' -AllMatches
-
-        $previousMatchIndex = $previousLineMatches.Matches.index
-        $currentMatchIndex = $currentLineMatches.Matches.index
-        $nextMatchIndex = $nextLineMatches.Matches.index
-
-        if ($previousLineMatches) 
-        {
-            foreach ($match in ($previousMatchIndex))
-            {
-                switch ($match) { # need to add the count to the index  
-                    {$match -eq ($matchIndex - 1) } {'found -1 match'}
-                    {$match -eq ($matchIndex) } {'found equals match'}
-                    {$match -eq ($matchIndex + 1) } {'found +1 match'}
-                    Default {}
-                }
-            }
-        }
-
-
+function findNumberMatches ($numbersTable, $lineNumString) {
+    Write-Verbose "Number Match $($lineNumString)"
+    $numberMatches = $null
+    $numberMatches = $fileInput[$i] | Select-String -Pattern $numRegex -AllMatches
+    if ($numberMatches.count -ge 1)
+    {
+        $numbersTable.Add($lineNumString, $numberMatches)
     }
-    #reset
-    $foundCharacters = $null
+    elseif ($numberMatches.count -eq 0) 
+    {
+        $numbersTable.Add($lineNumString, 'no matches')
+    }
 }
 
+function findSpecialMatches ($specialTable, $lineNumString) {
+    Write-Verbose "Special Match $($lineNumString)"
+    $specialMatches = $null
+    $specialMatches = $fileInput[$i] | Select-String -Pattern $specialCharsTestInput -AllMatches
+    if ($specialMatches.count -ge 1)
+    {
+        $specialTable.Add($lineNumString, $specialMatches)
+    }
+    elseif ($specialMatches.count -eq 0) 
+    {
+        $specialTable.Add($lineNumString, 'no matches')
+    }
+}
+
+function findNumberAndLength ($numTable, $specTable, $lineNumString) {
+    if ($numTable[$lineNumString] -ne 'no matches') 
+    {
+        #Find the location of the match with how long it is
+        foreach ($match in ($numTable[$lineNumString].matches))
+        {
+            $foundNumber = $match.value
+            $foundNumberIndex = $match.index
+            $foundNumberLocation = @()
+            for ($i = $foundNumberIndex; $i -lt $foundNumber.Length; $i++) {
+                $foundNumberLocation += $i 
+            }
+            return $foundNumberLocation
+
+
+        }
+    }
+}
+
+function checkIfNumIsAdjacent () {
+    
+}
+
+#Gather all of the matches first
 for ($i = 0; $i -lt $fileInput.Count; $i++) {
-    processLine $fileInput[$i] $foundMatches $i
+
+    $lineNumberString = ("line $($lineNumber)")
+
+    findNumberMatches $numbersTable $lineNumberString
+
+    findSpecialMatches $specialTable $lineNumberString
+    
+    $lineNumber++
 }
 
-<#
-foreach ($line in $fileInput){
-    processLine $line
+$lineNumber = 0
+
+#Then processes said matches
+for ($i = 0; $i -lt $fileInput.Count; $i++) {
+
+    $lineNumberString = ("line $($lineNumber)")
+
+    $foundIndexWithLength = (findNumberAndLength $numbersTable $specialTable $lineNumberString)
+
+    #If at the first line only check the current and next
+
+    #If at the last line only check the current and last
+    
+    $lineNumber++
+    
 }
-#>
+
+#working example 
+#(($specialTable["line $($lineNumber + 1)"].matches.index) - 1) -in $foundIndexWithLength
+<#
+
+put all the number matches in a hash as 'line number' = matches
+
+make a function to get the length of the value and then offset that from the index of where it is as an index of each int
+ 
+compare each index of the total value of the match to the previous, current, and next line
+
+during the check see if the first line and last line are true for the start and end of the file
 
 #>
