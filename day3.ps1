@@ -13,17 +13,18 @@ even diagonally, is a "part number" and should be included in your sum.
 ......755.
 ...$.*....
 .664.598..
+In this schematic, 
+two numbers are not part numbers because they are not adjacent to a symbol: 114 (top right) and 58 (middle right).
+Every other number is adjacent to a symbol and so is a part number; their sum is 4361.
 #>
 
 $filepath = 'C:\Users\Ianfr\OneDrive\Documents\GitHub\Advent-Of-Code-2023\day3_input.txt'
 $fileInput = get-content $filepath
 
-$specialCharsTestInput = '\$|\*|\#|\+'
-$specialChars = '\-|\@|\*|\/|\&|\#|\%|\+|\=|\$'
+
+$regexPattern = '[^\d\.]'
 $numRegex = '\d+'
 
-#$numberMatches = @()
-#$specialMatches = @()
 $numbersTable = @{}
 $specialTable = @{}
 
@@ -33,28 +34,36 @@ function findNumberMatches ($numbersTable, $lineNumString) {
     Write-Verbose "Number Match $($lineNumString)"
     $numberMatches = $null
     $numberMatches = $fileInput[$i] | Select-String -Pattern $numRegex -AllMatches
-    if ($numberMatches.count -ge 1)
-    {
+    #if ($numberMatches.count -ge 1)
+    #{
+    if ($null -eq $numberMatches) {
+        $numbersTable.Add($lineNumString, @())
+    } else {
         $numbersTable.Add($lineNumString, $numberMatches)
     }
-    elseif ($numberMatches.count -eq 0) 
-    {
-        $numbersTable.Add($lineNumString, 'no matches')
-    }
+    #}
+    #elseif ($numberMatches.count -eq 0) 
+    #{
+    #    $numbersTable.Add($lineNumString, 'no matches')
+    #}
 }
 
 function findSpecialMatches ($specialTable, $lineNumString) {
     Write-Verbose "Special Match $($lineNumString)"
     $specialMatches = $null
-    $specialMatches = $fileInput[$i] | Select-String -Pattern $specialCharsTestInput -AllMatches
-    if ($specialMatches.count -ge 1)
-    {
+    $specialMatches = $fileInput[$i] | Select-String -Pattern $regexPattern -AllMatches
+    #if ($specialMatches.count -ge 1)
+    #{
+    if ($null -eq $specialMatches) {
+        $specialTable.Add($lineNumString, @())
+    } else {
         $specialTable.Add($lineNumString, $specialMatches)
     }
-    elseif ($specialMatches.count -eq 0) 
-    {
-        $specialTable.Add($lineNumString, 'no matches')
-    }
+    #}
+    #elseif ($specialMatches.count -eq 0) 
+    #{
+    #    $specialTable.Add($lineNumString, 'no matches')
+    #}
 }
 
 function findNumberAndLength ($numTable, $specTable, $lineNumString) {
@@ -77,6 +86,8 @@ function findNumberAndLength ($numTable, $specTable, $lineNumString) {
 }
 
 function checkIfNumIsAdjacent () {
+    # do check if the first line or the last line is empty
+
     
 }
 
@@ -92,14 +103,60 @@ for ($i = 0; $i -lt $fileInput.Count; $i++) {
     $lineNumber++
 }
 
+#reset line number
 $lineNumber = 0
-
+$sumOfPartNumbers = 0
 #Then processes said matches
 for ($i = 0; $i -lt $fileInput.Count; $i++) {
 
     $lineNumberString = ("line $($lineNumber)")
 
-    $foundIndexWithLength = (findNumberAndLength $numbersTable $specialTable $lineNumberString)
+    #$numberMatches = @()
+    $numberMatchInfo = $numbersTable[$lineNumberString]
+    foreach ($item in $numberMatchInfo.matches) {
+        $isPartNumber = $false
+        # value, index, length
+        # want to find the start and end SEARCH indices for specials
+        $searchStart = $item.Index
+        if ($searchStart -gt 0) {
+            $searchStart = $searchStart - 1
+        }
+        $searchEnd = $item.Index + $item.Length - 1
+        if ($searchEnd -lt ($fileInput[0].Length - 1)) {
+            $searchEnd = $searchEnd + 1
+        }
+
+        $matchInfosToSearch = @()
+        if ($i -gt 0) {
+            $matchInfosToSearch += $specialTable[("line $($i - 1)")]
+        }
+        $matchInfosToSearch += $specialTable[$lineNumberString]
+        if ($i -lt ($fileInput.Length - 1)) {
+            $matchInfosToSearch += $specialTable[("line $($i + 1)")]
+        }
+
+        # for each line in lines to search
+        # check each of its match objects
+        # and see if any of them have an index that is gte searchStart
+        # or lte $searchEnd
+        foreach ($matchInfo in $matchInfosToSearch) {
+            foreach ($specialCharMatch in $matchInfo.matches) {
+                if (($specialCharMatch.Index -ge $searchStart) -and ($specialCharMatch.index -le $searchEnd)) {
+                    # the number is a part number
+                    $isPartNumber = $true
+                }
+            }
+        }
+
+        if ($isPartNumber) {
+            $numValue = [int]($item.value)
+            Write-Verbose "Found part number $($numValue) on line $($i)"
+            $sumOfPartNumbers += $numValue
+        }
+
+    }
+
+    #$foundIndexWithLength = (findNumberAndLength $numbersTable $specialTable $lineNumberString)
 
     #If at the first line only check the current and next
 
@@ -108,6 +165,8 @@ for ($i = 0; $i -lt $fileInput.Count; $i++) {
     $lineNumber++
     
 }
+
+Write-Host $sumOfPartNumbers
 
 #working example 
 #(($specialTable["line $($lineNumber + 1)"].matches.index) - 1) -in $foundIndexWithLength
