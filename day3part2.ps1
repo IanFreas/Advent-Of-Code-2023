@@ -25,6 +25,10 @@ The second gear is in the lower right; its gear ratio is 451490.
 What is the sum of all of the gear ratios in your engine schematic?
 #>
 
+#################
+#region Variables 
+#################
+
 $filePath = 'C:\Users\Ianfr\OneDrive\Documents\GitHub\Advent-Of-Code-2023\day3_input.txt'
 $testFilePath = 'C:\Users\Ianfr\OneDrive\Documents\GitHub\Advent-Of-Code-2023\day3_test_input.txt'
 $fileInput = get-content $testFilePath
@@ -41,7 +45,12 @@ $lineNumber = 0
 # key = $linenumber, value = $numValue
 $gearRatioPairs = [ordered]@{}
 
+#endregion
 
+
+#################
+#region Functions
+#################
 function FindMatches ($numbersTable, $specialCharactersTable, $lineNumString) 
 {
     Write-Verbose "Match on $($lineNumString)"
@@ -69,6 +78,56 @@ function FindMatches ($numbersTable, $specialCharactersTable, $lineNumString)
     }
 }
 
+function ProcessMatches ($IsPartNumber, $item){
+
+    # value, index, length
+    # want to find the start and end SEARCH indices for specials
+    $searchStart = $item.Index
+    if ($searchStart -gt 0) # if the index of the number isn't at the start of the line
+    {
+        $searchStart = $searchStart - 1
+    }
+
+    $searchEnd = $item.Index + $item.Length - 1
+    if ($searchEnd -lt ($fileInput[0].Length - 1)) # if the number does not reach the end of the line
+    {
+        $searchEnd = $searchEnd + 1
+    }
+
+    # Holds up to 3 lines at any given time 
+    $matchInfosToSearch = @()
+    if ($i -gt 0) # checks if you're on the first line
+    {
+        $matchInfosToSearch += $specialCharactersTable[("line $($i - 1)")]
+    }
+
+    # current line
+    $matchInfosToSearch += $specialCharactersTable[$lineNumberString] 
+
+    if ($i -lt ($fileInput.Length - 1)) # checks if you're on the last line
+    {
+        $matchInfosToSearch += $specialCharactersTable[("line $($i + 1)")]
+    }
+
+    # for each line in lines to search
+    # check each of its match objects
+    # and see if any of them have an index that is ge searchStart
+    # or le $searchEnd
+    foreach ($matchInfo in $matchInfosToSearch) 
+    {
+        foreach ($specialCharMatch in $matchInfo.matches) 
+        {
+            if (($specialCharMatch.Index -ge $searchStart) -and ($specialCharMatch.index -le $searchEnd)) 
+            {
+                # the number is a part number
+                $isFirstPartNumber = $true
+            }
+        }
+    }
+}
+
+#endregion
+
 #Gather all of the matches first
 for ($i = 0; $i -lt $fileInput.Count; $i++) 
 {
@@ -88,52 +147,8 @@ for ($i = 0; $i -lt $fileInput.Count; $i++)
     foreach ($item in $numberMatchInfo.matches) 
     {
         $isFirstPartNumber = $false
-
-        # value, index, length
-        # want to find the start and end SEARCH indices for specials
-        $searchStart = $item.Index
-        if ($searchStart -gt 0) # if the index of the number isn't at the start of the line
-        {
-            $searchStart = $searchStart - 1
-        }
-
-        $searchEnd = $item.Index + $item.Length - 1
-        if ($searchEnd -lt ($fileInput[0].Length - 1)) # if the number does not reach the end of the line
-        {
-            $searchEnd = $searchEnd + 1
-        }
-
-        # Holds up to 3 lines at any given time 
-        $matchInfosToSearch = @()
-        if ($i -gt 0) # checks if you're on the first line
-        {
-            $matchInfosToSearch += $specialCharactersTable[("line $($i - 1)")]
-        }
-
-        # current line
-        $matchInfosToSearch += $specialCharactersTable[$lineNumberString] 
-
-        if ($i -lt ($fileInput.Length - 1)) # checks if you're on the last line
-        {
-            $matchInfosToSearch += $specialCharactersTable[("line $($i + 1)")]
-        }
-
-        # for each line in lines to search
-        # check each of its match objects
-        # and see if any of them have an index that is ge searchStart
-        # or le $searchEnd
-        foreach ($matchInfo in $matchInfosToSearch) 
-        {
-            foreach ($specialCharMatch in $matchInfo.matches) 
-            {
-                if (($specialCharMatch.Index -ge $searchStart) -and ($specialCharMatch.index -le $searchEnd)) 
-                {
-                    # the number is a part number
-                    $isFirstPartNumber = $true
-                }
-            }
-        }
-
+        ProcessMatches $isFirstPartNumber $item
+        
         if ($isFirstPartNumber) 
         {
             $numValue = [int]($item.value)
