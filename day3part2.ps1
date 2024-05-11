@@ -51,76 +51,89 @@ $gearRatioPairs = [ordered]@{}
 #################
 #region Functions
 #################
-function FindMatches ($numbersTable, $specialCharactersTable, $lineNumString) 
+function FindMatches 
 {
-    Write-Verbose "Match on $($lineNumString)"
-
-    $numberMatches = $null
-    $numberMatches = $fileInput[$i] | Select-String -Pattern $numberRegexPattern -AllMatches
-
-    if ($null -eq $numberMatches)
+    param
+    (
+        $numbersTable, 
+        $specialCharactersTable, 
+        $lineNumString
+    )
+    process 
     {
-        $numbersTable.Add($lineNumString, @())
-    } 
-    else {
-        $numbersTable.Add($lineNumString, $numberMatches)
-    }
+        Write-Verbose "Match on $($lineNumString)"
 
-    $specialMatches = $null
-    $specialMatches = $fileInput[$i] | Select-String -Pattern $specialCharacterRegexPattern -AllMatches
+        $numberMatches = $null
+        $numberMatches = $fileInput[$i] | Select-String -Pattern $numberRegexPattern -AllMatches
 
-    if ($null -eq $specialMatches) 
-    {
-        $specialCharactersTable.Add($lineNumString, @())
-    } 
-    else {
-        $specialCharactersTable.Add($lineNumString, $specialMatches)
+        if ($null -eq $numberMatches)
+        {
+            $numbersTable.Add($lineNumString, @())
+        } 
+        else
+        {
+            $numbersTable.Add($lineNumString, $numberMatches)
+        }
+
+        $specialCharMatches = $null
+        $specialCharMatches = $fileInput[$i] | Select-String -Pattern $specialCharacterRegexPattern -AllMatches
+
+        if ($null -eq $specialCharMatches) 
+        {
+            $specialCharactersTable.Add($lineNumString, @())
+        }
+        else 
+        {
+            $specialCharactersTable.Add($lineNumString, $specialCharMatches)
+        }
     }
 }
 
-function ProcessMatches ($IsPartNumber, $item){
-
-    # value, index, length
-    # want to find the start and end SEARCH indices for specials
-    $searchStart = $item.Index
-    if ($searchStart -gt 0) # if the index of the number isn't at the start of the line
+function ProcessMatches ($IsPartNumber, $item)
+{
+    process
     {
-        $searchStart = $searchStart - 1
-    }
-
-    $searchEnd = $item.Index + $item.Length - 1
-    if ($searchEnd -lt ($fileInput[0].Length - 1)) # if the number does not reach the end of the line
-    {
-        $searchEnd = $searchEnd + 1
-    }
-
-    # Holds up to 3 lines at any given time 
-    $matchInfosToSearch = @()
-    if ($i -gt 0) # checks if you're on the first line
-    {
-        $matchInfosToSearch += $specialCharactersTable[("line $($i - 1)")]
-    }
-
-    # current line
-    $matchInfosToSearch += $specialCharactersTable[$lineNumberString] 
-
-    if ($i -lt ($fileInput.Length - 1)) # checks if you're on the last line
-    {
-        $matchInfosToSearch += $specialCharactersTable[("line $($i + 1)")]
-    }
-
-    # for each line in lines to search
-    # check each of its match objects
-    # and see if any of them have an index that is ge searchStart
-    # or le $searchEnd
-    foreach ($matchInfo in $matchInfosToSearch) 
-    {
-        foreach ($specialCharMatch in $matchInfo.matches) 
+        # value, index, length
+        # want to find the start and end SEARCH indices for specials
+        $searchStart = $item.Index
+        if ($searchStart -gt 0) # if the index of the number isn't at the start of the line
         {
-            if (($specialCharMatch.Index -ge $searchStart) -and ($specialCharMatch.index -le $searchEnd)) 
+            $searchStart = $searchStart - 1
+        }
+
+        $searchEnd = $item.Index + $item.Length - 1
+        if ($searchEnd -lt ($fileInput[0].Length - 1)) # if the number does not reach the end of the line
+        {
+            $searchEnd = $searchEnd + 1
+        }
+
+        # Holds up to 3 lines at any given time 
+        $matchInfosToSearch = @()
+        if ($i -gt 0) # checks if you're on the first line
+        {
+            $matchInfosToSearch += $specialCharactersTable[("line $($i - 1)")]
+        }
+
+        # current line
+        $matchInfosToSearch += $specialCharactersTable[$lineNumberString] 
+        if ($i -lt ($fileInput.Length - 1)) # checks if you're on the last line
+        {
+            $matchInfosToSearch += $specialCharactersTable[("line $($i + 1)")]
+        }
+
+        # for each line in lines to search
+        # check each of its match objects
+        # and see if any of them have an index that is ge searchStart
+        # or le $searchEnd
+        foreach ($matchInfo in $matchInfosToSearch) 
+        {
+            foreach ($specialCharMatch in $matchInfo.matches) 
             {
-                # the number is a part number
-                $isFirstPartNumber = $true
+                if (($specialCharMatch.Index -ge $searchStart) -and ($specialCharMatch.index -le $searchEnd)) 
+                {
+                    # the number is a part number
+                    $isFirstPartNumber = $true
+                }
             }
         }
     }
@@ -171,7 +184,8 @@ for ($i = 0; $i -lt $fileInput.Count; $i++)
                 $sumOfPartNumbers += $gearRatioPairs[0] * $gearRatioPairs[1]
                 Write-Verbose "Current total is $($sumOfPartNumbers)"
             }
-            else {
+            else 
+            {
                 $gearRatioPairs.RemoveAt(0)
             }
 
