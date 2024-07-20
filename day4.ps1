@@ -32,11 +32,13 @@ Take a seat in the large pile of colorful cards. How many points are they worth 
 #end region question
 
 #region main
-$inputFileContent = get-content -Path "$PSScriptRoot\day4_test_input"
+$inputFileContent = get-content -Path "$PSScriptRoot\day4_input"
 
 $regexPattern = '(\w+\s+\d+:)(.*\|)(.*)'
 
 $hash = @{}
+
+$total = 0
 
 foreach ($line in $inputFileContent)
 {
@@ -57,5 +59,14 @@ foreach ($line in $inputFileContent)
 
 }
 
-$hash
-#end region main
+foreach ($card in $hash.GetEnumerator())
+{
+    $matchedNumbers = @()
+    $currentCard = $card.Key
+    $matchedNumbers += $card.Value.'Your Numbers' | Where-Object {$card.Value.'Winning Numbers' -contains $_}
+    
+    if ($matchedNumbers.Count -ne 0)
+    {
+        $total += [System.Math]::Pow(2, $matchedNumbers.count - 1)
+    }    
+}
