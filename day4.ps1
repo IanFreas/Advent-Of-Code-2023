@@ -32,20 +32,30 @@ Take a seat in the large pile of colorful cards. How many points are they worth 
 #end region question
 
 #region main
+$inputFileContent = get-content -Path "$PSScriptRoot\day4_test_input"
 
-$inputFileContent = get-content -Path '.\day4_test_input'
+$regexPattern = '(\w+\s+\d+:)(.*\|)(.*)'
+
+$hash = @{}
 
 foreach ($line in $inputFileContent)
 {
-    $line -match 'card \d+' | Out-Null
-    $cardNumber = $matches.Values
-    $cardNumber
+    $winningNumbersArray = @()
+    $yourNumbersArray    = @()
+    
+    $line -match $regexPattern | Out-Null
+    
+    $cardNumber = $Matches.1 -replace ':',''
+    
+    $winningNumbers = ($Matches.2 -replace '\|','').Trim()
+    $winningNumbers -split '\s+' | ForEach-Object {$winningNumbersArray += [int]$_}
+    
+    $yourNumbers = ($matches.3 -replace '\s+',' ').Trim()
+    $yourNumbers -split '\s+' | ForEach-Object {$yourNumbersArray += [int]$_}
+    
+    $hash += @{$cardNumber = @{'Winning Numbers' = $winningNumbersArray;'Your Numbers' = $yourNumbersArray}}
 
-    $winningNumbers = 
-
-    [PSCustomObject]@{
-        Name = Value
-    }
 }
 
+$hash
 #end region main
