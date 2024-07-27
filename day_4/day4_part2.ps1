@@ -27,3 +27,43 @@ Once all of the originals and copies have been processed, you end up with 1 inst
 
 Process all of the original and copied scratchcards until no more scratchcards are won. Including the original set of scratchcards, how many total scratchcards do you end up with?
 #>
+
+
+$inputFileContent = get-content -Path "$PSScriptRoot\day4_input"
+
+$regexPattern = '(\w+\s+\d+:)(.*\|)(.*)'
+
+$hash = @{}
+
+$total = 0
+
+foreach ($line in $inputFileContent)
+{
+    $winningNumbersArray = @()
+    $yourNumbersArray    = @()
+    
+    $line -match $regexPattern | Out-Null
+    
+    $cardNumber = $Matches.1 -replace ':',''
+    
+    $winningNumbers = ($Matches.2 -replace '\|','').Trim()
+    $winningNumbers -split '\s+' | ForEach-Object {$winningNumbersArray += [int]$_}
+    
+    $yourNumbers = ($matches.3 -replace '\s+',' ').Trim()
+    $yourNumbers -split '\s+' | ForEach-Object {$yourNumbersArray += [int]$_}
+    
+    $hash += @{$cardNumber = @{'Winning Numbers' = $winningNumbersArray;'Your Numbers' = $yourNumbersArray}}
+
+}
+
+foreach ($card in $hash.GetEnumerator())
+{
+    $matchedNumbers = @()
+    $currentCard = $card.Key
+    $matchedNumbers += $card.Value.'Your Numbers' | Where-Object {$card.Value.'Winning Numbers' -contains $_}
+    
+    if ($matchedNumbers.Count -ne 0)
+    {
+        $total += [System.Math]::Pow(2, $matchedNumbers.count - 1)
+    }    
+}
