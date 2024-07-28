@@ -4,9 +4,12 @@ Just as you're about to report your findings to the Elf, one of you realizes tha
 
 There's no such thing as "points". Instead, scratchcards only cause you to win more scratchcards equal to the number of winning numbers you have.
 
-Specifically, you win copies of the scratchcards below the winning card equal to the number of matches. So, if card 10 were to have 5 matching numbers, you would win one copy each of cards 11, 12, 13, 14, and 15.
+Specifically, you win copies of the scratchcards below the winning card equal to the number of matches.
+So, if card 10 were to have 5 matching numbers, you would win one copy each of cards 11, 12, 13, 14, and 15.
 
-Copies of scratchcards are scored like normal scratchcards and have the same card number as the card they copied. So, if you win a copy of card 10 and it has 5 matching numbers, it would then win a copy of the same cards that the original card 10 won: cards 11, 12, 13, 14, and 15. This process repeats until none of the copies cause you to win any more cards. (Cards will never make you copy a card past the end of the table.)
+Copies of scratchcards are scored like normal scratchcards and have the same card number as the card they copied.
+So, if you win a copy of card 10 and it has 5 matching numbers, it would then win a copy of the same cards that the original card 10 won: cards 11, 12, 13, 14, and 15. 
+This process repeats until none of the copies cause you to win any more cards. (Cards will never make you copy a card past the end of the table.)
 
 This time, the above example goes differently:
 
@@ -23,25 +26,26 @@ Your four instances of card 3 (one original and three copies) have two matching 
 Your eight instances of card 4 (one original and seven copies) have one matching number, so you win eight copies of card 5.
 Your fourteen instances of card 5 (one original and thirteen copies) have no matching numbers and win no more cards.
 Your one instance of card 6 (one original) has no matching numbers and wins no more cards.
-Once all of the originals and copies have been processed, you end up with 1 instance of card 1, 2 instances of card 2, 4 instances of card 3, 8 instances of card 4, 14 instances of card 5, and 1 instance of card 6. In total, this example pile of scratchcards causes you to ultimately have 30 scratchcards!
+Once all of the originals and copies have been processed, you end up with 1 instance of card 1, 2 instances of card 2, 4 instances of card 3, 8 instances of card 4, 14 instances of card 5, and 1 instance of card 6. 
+In total, this example pile of scratchcards causes you to ultimately have 30 scratchcards!
 
 Process all of the original and copied scratchcards until no more scratchcards are won. Including the original set of scratchcards, how many total scratchcards do you end up with?
 #>
 
 
-$inputFileContent = get-content -Path "$PSScriptRoot\day4_input"
-
+$inputFileContent = get-content -Path "$PSScriptRoot\day4_part2_test_input"
 $regexPattern = '(\w+\s+\d+:)(.*\|)(.*)'
-
-$hash = @{}
-
+$hash = [ordered]@{}
 $total = 0
 
+# Process the input file
 foreach ($line in $inputFileContent)
 {
+    # Variable config
     $winningNumbersArray = @()
     $yourNumbersArray    = @()
     
+    #Pattern match and formatting
     $line -match $regexPattern | Out-Null
     
     $cardNumber = $Matches.1 -replace ':',''
@@ -52,18 +56,57 @@ foreach ($line in $inputFileContent)
     $yourNumbers = ($matches.3 -replace '\s+',' ').Trim()
     $yourNumbers -split '\s+' | ForEach-Object {$yourNumbersArray += [int]$_}
     
+    #All cards in a single hash table
     $hash += @{$cardNumber = @{'Winning Numbers' = $winningNumbersArray;'Your Numbers' = $yourNumbersArray}}
 
 }
 
-foreach ($card in $hash.GetEnumerator())
+$index = 0
+$totalCardAmount = $hash.Count
+
+for ($i = 0; $i -lt $totalCardAmount; $i++) {
+    <# Action that will repeat until the condition is met #>
+}
+
+# Find matches
+foreach ($card in $($hash.GetEnumerator()))
 {
+    # Variable config
     $matchedNumbers = @()
-    $currentCard = $card.Key
+
+    # calculate how far you are from the last card
+    $card.Key -match '\d+' | Out-Null
+    $distanceToEnd = $totalCardAmount - $matches[0]
+
+    # grab the matches from each card
     $matchedNumbers += $card.Value.'Your Numbers' | Where-Object {$card.Value.'Winning Numbers' -contains $_}
     
-    if ($matchedNumbers.Count -ne 0)
+    # process the matches to get your total per card
+    # also duplicate the subsequent entries
+    if ($matchedNumbers.count -le $distanceToEnd -and $matchedNumbers.Count -ne 0) {
+        $total += $matchedNumbers.count
+        $dupeValue = 0
+        do 
+        {
+            $hash.Insert($index,"$($card.key) dupe $dupeValue",$card.value)
+            $dupeValue++
+        }
+        until ($dupeValue -eq $matchedNumbers.Count)
+    }
+
+    elseif ($matchedNumbers.count -gt $distanceToEnd -and $matchedNumbers.Count -ne 0)
     {
-        $total += [System.Math]::Pow(2, $matchedNumbers.count - 1)
-    }    
+        $total += $distanceToEnd
+        $dupeValue = 0
+        do 
+        {
+            $hash.Insert($index,"$($card.key) dupe $dupeValue",$card.value)
+            $dupeValue++
+        }
+        until ($dupeValue -eq $distanceToEnd)
+    }
+    
+    $index++
 }
+
+Write-Host "Total: $total"
