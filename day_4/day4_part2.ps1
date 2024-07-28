@@ -67,6 +67,10 @@ $totalCardAmount = $hash.Count
 for ($i = 0; $i -lt $totalCardAmount; $i++) {
     <# Action that will repeat until the condition is met #>
 }
+for ($i = 0; $i -lt $hash.count; $i++) {
+    $hash.count
+    $hash.Insert($i,"test $i",'ayo')
+}
 
 # Find matches
 foreach ($card in $($hash.GetEnumerator()))
