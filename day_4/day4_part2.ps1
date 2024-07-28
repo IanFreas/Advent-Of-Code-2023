@@ -37,6 +37,8 @@ $inputFileContent = get-content -Path "$PSScriptRoot\day4_part2_test_input"
 $regexPattern = '(\w+\s+\d+:)(.*\|)(.*)'
 $hash = [ordered]@{}
 $total = 0
+$cardArray = @()
+
 
 # Process the input file
 foreach ($line in $inputFileContent)
@@ -57,34 +59,29 @@ foreach ($line in $inputFileContent)
     $yourNumbers -split '\s+' | ForEach-Object {$yourNumbersArray += [int]$_}
     
     #All cards in a single hash table
-    $hash += @{$cardNumber = @{'Winning Numbers' = $winningNumbersArray;'Your Numbers' = $yourNumbersArray}}
-
+    #$hash += @{$cardNumber = @{'Winning Numbers' = $winningNumbersArray;'Your Numbers' = $yourNumbersArray}}
+    
+    $cardArray += [PSCustomObject] @{
+        Name             = $cardNumber
+        WinningNumbers   = $winningNumbersArray
+        YourNumbers      = $yourNumbersArray
+        DuplicationValue = 1
+        MatchesFound     = $false
+    }
 }
 
-$index = 0
-$totalCardAmount = $hash.Count
-
-for ($i = 0; $i -lt $totalCardAmount; $i++) {
-    <# Action that will repeat until the condition is met #>
-}
-for ($i = 0; $i -lt $hash.count; $i++) {
-    $hash.count
-    $hash.Insert($i,"test $i",'ayo')
-}
-
-# Find matches
-foreach ($card in $($hash.GetEnumerator()))
+# Find and process matches
+:mainCardLoop for ($i = 0; $i -lt $cardArray.Count; $i++)
 {
     # Variable config
     $matchedNumbers = @()
 
     # calculate how far you are from the last card
-    $card.Key -match '\d+' | Out-Null
-    $distanceToEnd = $totalCardAmount - $matches[0]
+    $distanceToEnd = $cardArray.count - $i
 
     # grab the matches from each card
-    $matchedNumbers += $card.Value.'Your Numbers' | Where-Object {$card.Value.'Winning Numbers' -contains $_}
-    
+    $matchedNumbers += $cardArray.YourNumbers| Where-Object {$cardArray.WinningNumbers -contains $_}
+
     # process the matches to get your total per card
     # also duplicate the subsequent entries
     if ($matchedNumbers.count -le $distanceToEnd -and $matchedNumbers.Count -ne 0) {
