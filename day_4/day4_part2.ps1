@@ -65,11 +65,43 @@ foreach ($line in $inputFileContent)
         Name             = $cardNumber
         WinningNumbers   = $winningNumbersArray
         YourNumbers      = $yourNumbersArray
-        DuplicationValue = 1
-        MatchesFound     = $false
+        DuplicationValue = 0
+        Score            = 0
+        MatchedNumbers   = @()
     }
 }
 
+$currentCardIndex = 0
+
+foreach ($card in $cardArray)
+{
+    $loopCount =  0
+    do {
+        # calculate how far you are from the last card
+        $distanceToEnd = $cardArray.Count - $currentCardIndex
+        
+        # Find matches
+        $card.matchedNumbers += $card.YourNumbers | Where-Object {$card.WinningNumbers -contains $_}
+        
+        # Assign a score every time this card matches and dupe cards
+        if ($card.MatchedNumbers.Count -gt 0)
+        {
+            $card.Score++
+            $cardArray[($currentCardIndex + 1)..$card.MatchedNumbers.count] | foreach-object {$_.duplicationvalue++}
+        
+        }
+
+        $loopCount++
+
+    } until ($loopCount -ge $card.DuplicationValue)
+
+    $currentCardIndex++
+    # Duplicate subsequent cards
+
+
+}
+
+<#
 # Find and process matches
 :mainCardLoop for ($i = 0; $i -lt $cardArray.Count; $i++)
 {
@@ -79,35 +111,35 @@ foreach ($line in $inputFileContent)
     # calculate how far you are from the last card
     $distanceToEnd = $cardArray.count - $i
 
-    # grab the matches from each card
-    $matchedNumbers += $cardArray.YourNumbers| Where-Object {$cardArray.WinningNumbers -contains $_}
+    $loopCount = 0
 
-    # process the matches to get your total per card
-    # also duplicate the subsequent entries
-    if ($matchedNumbers.count -le $distanceToEnd -and $matchedNumbers.Count -ne 0) {
-        $total += $matchedNumbers.count
-        $dupeValue = 0
-        do 
-        {
-            $hash.Insert($index,"$($card.key) dupe $dupeValue",$card.value)
-            $dupeValue++
-        }
-        until ($dupeValue -eq $matchedNumbers.Count)
-    }
+    write-host "current card $($cardArray[$i].name)"
 
-    elseif ($matchedNumbers.count -gt $distanceToEnd -and $matchedNumbers.Count -ne 0)
-    {
-        $total += $distanceToEnd
-        $dupeValue = 0
-        do 
+    # process each card based on the amount of instances it has
+    do {
+        #get the amount of matches
+        $matchedNumbers += $cardArray[$i].YourNumbers | Where-Object {$cardArray[$i].WinningNumbers -contains $_}
+        
+        # Check if the amount of matches you have does not go past the end of the array
+        if ($matchedNumbers.count -le $distanceToEnd -and $matchedNumbers.Count -ne 0)
         {
-            $hash.Insert($index,"$($card.key) dupe $dupeValue",$card.value)
-            $dupeValue++
+            #increment the subsquent entries
+            $cardArray[($i+1)..$matchedNumbers.count] | ForEach-Object {$_.duplicationvalue++}
+            $total += $matchedNumbers.count
+            $loopCount++
         }
-        until ($dupeValue -eq $distanceToEnd)
-    }
-    
-    $index++
+
+        # Checks if you're near the end
+        elseif ($matchedNumbers.count -gt $distanceToEnd -and $matchedNumbers.Count -ne 0)
+        {
+            #increment the subsquent entries
+            $cardArray[($i+1)..$distanceToEnd] | ForEach-Object {$_.duplicationvalue++}
+            $total += $distanceToEnd
+            $loopCount++
+        }
+    } 
+    until ($cardArray[$i].DuplicationValue -eq $loopCount)
 }
 
+#>
 Write-Host "Total: $total"
